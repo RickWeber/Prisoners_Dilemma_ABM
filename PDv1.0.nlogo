@@ -458,7 +458,7 @@ turnover-rate
 turnover-rate
 0
 0.5
-0.1
+0.25
 0.05
 1
 NIL
@@ -484,7 +484,7 @@ rounds-per-GA-event
 rounds-per-GA-event
 1
 100
-10.0
+1.0
 1
 1
 NIL
@@ -1201,9 +1201,10 @@ NetLogo 6.2.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="1000"/>
-    <metric>strategy-count</metric>
+    <metric>first strategy-count</metric>
+    <metric>last strategy-count</metric>
     <enumeratedValueSet variable="rounds-per-GA-event">
-      <value value="10"/>
+      <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-memory">
       <value value="0.5"/>
@@ -1249,6 +1250,7 @@ NetLogo 6.2.0
     </enumeratedValueSet>
     <enumeratedValueSet variable="assume-cooperation?">
       <value value="true"/>
+      <value value="false"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="wildcard-p-magnitude">
       <value value="1"/>
