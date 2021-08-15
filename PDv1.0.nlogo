@@ -810,7 +810,7 @@ PLOT
 482
 533
 632
-plot 1
+Unique strategy frequency
 NIL
 NIL
 0.0
