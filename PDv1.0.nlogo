@@ -23,7 +23,12 @@ end
 
 to go
   ask turtles [
-    play-n-rounds 200 (rnd:weighted-one-of other turtles [1 / (distance myself + 0.01)])
+    ifelse match-by-distance? [ ; the more I think about it, the sillier this seems (without investing effort into creating some geography for the turtles)
+      play-n-rounds 200 (rnd:weighted-one-of other turtles [1 / (distance myself + 0.01)])
+    ][ ; but this also seems a touch boring
+      play-n-rounds 200 one-of other turtles
+    ] ; could I add some preferential attachment? Could I make a weighted probability by the average-wealth of a turtle's previous partners? (they'd have to exist which might add more computational complexity than I care to.)
+    ; I'll do that some other time, maybe.
     set wealth max (list (wealth - (memory-length * cost-of-memory)) 0)
     set average-wealth (0.9 * average-wealth) + (0.1 * wealth)
     risk-mutation
@@ -850,6 +855,17 @@ the \"visuals\" being updated indicate the \"cooperativeness\" of a turtle's str
 0.0
 1
 
+SWITCH
+481
+410
+677
+443
+match-by-distance?
+match-by-distance?
+1
+1
+-1000
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -1205,6 +1221,74 @@ NetLogo 6.2.0
     <metric>last strategy-count</metric>
     <enumeratedValueSet variable="rounds-per-GA-event">
       <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cost-of-memory">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="split-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="err-p-magnitude">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wildcard-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="duplication-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="population">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="win-lose-payout">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="duplication-p-magnitude">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="point-finetune">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="point-p-magnitude">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="lose-win-payout">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="error-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="split-p-magnitude">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="update-visuals?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="assume-cooperation?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wildcard-p-magnitude">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="lose-lose-payout">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="turnover-rate">
+      <value value="0.25"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="win-win-payout">
+      <value value="0.6"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="experiment 2" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="10000"/>
+    <metric>first strategy-count</metric>
+    <metric>last strategy-count</metric>
+    <enumeratedValueSet variable="rounds-per-GA-event">
+      <value value="50"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-memory">
       <value value="0.5"/>
