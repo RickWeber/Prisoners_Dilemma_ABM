@@ -188,12 +188,13 @@ to-report most-common-item [ lst rank ]
 end
 
 to-report strategy-count
-  let X [strategy] of turtles
-  let Y remove-duplicates X
-  let n1 length X
-  let n2 length Y
-  let Z map [A -> length filter [B -> B = A] X] Y
-  report (list Y Z)
+  let all-strategies [strategy] of turtles
+  let unique-strategies remove-duplicates all-strategies
+  let strategy-counts map [this-strategy -> length filter [B -> B = this-strategy] all-strategies] unique-strategies
+  let sorted-counts sort-by > strategy-counts
+  let order map [x -> position x sorted-counts] strategy-counts
+  let sorted-strategies map [x -> item x unique-strategies] order
+  report (list sorted-strategies sorted-counts)
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -432,7 +433,7 @@ population
 population
 10
 1000
-100.0
+990.0
 10
 1
 NIL
@@ -457,7 +458,7 @@ turnover-rate
 turnover-rate
 0
 0.5
-0.25
+0.2
 0.05
 1
 NIL
@@ -577,17 +578,6 @@ duplication-finetune
 1
 NIL
 HORIZONTAL
-
-MONITOR
-1562
-491
-1658
-536
-cooperability
-mean [mean strategy] of turtles
-17
-1
-11
 
 SLIDER
 477
@@ -718,16 +708,6 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-1134
-251
-1284
-281
-note to self: \nupdate variable names
-12
-0.0
-1
-
-TEXTBOX
 756
 436
 906
@@ -773,13 +753,75 @@ count turtles with [member? strategy (most-common-strategy 2)]
 MONITOR
 1198
 386
-1319
+1331
 431
-cooperativeness
+"cooperativeness"
 mean map mean [strategy] of turtles
 17
 1
 11
+
+BUTTON
+1176
+26
+1337
+59
+check out a turtle
+ask one-of turtles [ show strategy show trimmed-history memory-length history show binary-to-decimal trimmed-history memory-length history show item binary-to-decimal trimmed-history memory-length history strategy]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+TEXTBOX
+1164
+68
+1481
+293
+Check the Command Center for output\n\nThis button shows \n1. A random turtle's strategy, \n2. The part of their history they can remember, \n3. That history converted from binary to decimal form. \n4. That turtle's next move based on their strategy and history.\n\nThe strategy (1.) is indexed from 0. Their next move (4.) is the (3.)th element of their strategy. So a history of [1 0 1] would be converted to 5 and the next move would be [x x x x 1 x x x] or  [x x x x 0 x x x].
+12
+0.0
+1
+
+BUTTON
+1173
+306
+1438
+339
+Show tally of different strategies
+show strategy-count
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+PLOT
+333
+482
+533
+632
+plot 1
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "histogram last strategy-count"
 
 @#$#@#$#@
 ## WHAT IS IT?
