@@ -1200,7 +1200,7 @@ NetLogo 6.2.0
   <experiment name="experiment 1" repetitions="1" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1000"/>
+    <timeLimit steps="100"/>
     <metric>first strategy-count</metric>
     <metric>last strategy-count</metric>
     <enumeratedValueSet variable="rounds-per-GA-event">
