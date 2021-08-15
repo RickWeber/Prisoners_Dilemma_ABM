@@ -28,7 +28,7 @@ to go
     set average-wealth (0.9 * average-wealth) + (0.1 * wealth)
     risk-mutation
   ]
-  if random-float 1 < wildcard-fine-tune / (10 * wildcard-p-magnitude) [
+  if random-float 1 < wildcard-finetune / (10 * wildcard-p-magnitude) [
     ask one-of turtles [
       set strategy random-strategy memory-length
       setxy random-xcor random-ycor
@@ -66,17 +66,17 @@ end
 
 to risk-mutation
   if point-p-magnitude > 0 [
-  if random-float 1 < point-slider / (10 * point-p-magnitude) [
+  if random-float 1 < point-finetune / (10 * point-p-magnitude) [
     point-mutate
     set mutations mutations + 1
   ]]
   if split-p-magnitude > 0 [
-  if (random-float 1 < split-slider / (10 * split-p-magnitude)) and memory-length > 1 [
+  if (random-float 1 < split-finetune / (10 * split-p-magnitude)) and memory-length > 1 [
     split-mutate
     set mutations mutations + 1
   ]]
   if duplication-p-magnitude > 0 [
-  if random-float 1 < duplication-slider / (10 * duplication-p-magnitude) [
+  if random-float 1 < duplication-finetune / (10 * duplication-p-magnitude) [
     duplicate-mutate
     set mutations mutations + 1
   ]]
@@ -150,7 +150,7 @@ to-report random-strategy [ mem-length ]
 end
 
 to-report move-error [ move ]
-  report ifelse-value (random-float 1 < error-slider / (10 ^ err-p-magnitude )) [ move ] [ abs (move - 1) ]
+  report ifelse-value (random-float 1 < error-finetune / (10 ^ err-p-magnitude )) [ move ] [ abs (move - 1) ]
 end
 
 to-report make-move [ strat hist ]
@@ -187,12 +187,14 @@ to-report most-common-item [ lst rank ]
   report most-common-item (filter [l -> not member? l modes lst] lst) (rank - 1)
 end
 
-;to-report strategy-count
-;  let S remove-duplicates [strategy] of turtles
-;  let n length S
-;  let c n-values n [0]
-;  let X map []
-;end
+to-report strategy-count
+  let X [strategy] of turtles
+  let Y remove-duplicates X
+  let n1 length X
+  let n2 length Y
+  let Z map [A -> length filter [B -> B = A] X] Y
+  report (list Y Z)
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 9
@@ -521,8 +523,8 @@ SLIDER
 272
 1104
 305
-point-slider
-point-slider
+point-finetune
+point-finetune
 1
 9
 2.0
@@ -536,8 +538,8 @@ SLIDER
 237
 1104
 270
-error-slider
-error-slider
+error-finetune
+error-finetune
 1
 9
 1.0
@@ -551,8 +553,8 @@ SLIDER
 308
 1103
 341
-split-slider
-split-slider
+split-finetune
+split-finetune
 1
 9
 1.0
@@ -566,8 +568,8 @@ SLIDER
 346
 1109
 379
-duplication-slider
-duplication-slider
+duplication-finetune
+duplication-finetune
 1
 9
 1.0
@@ -596,7 +598,7 @@ cost-of-memory
 cost-of-memory
 0
 3
-0.1
+0.5
 0.05
 1
 NIL
@@ -705,8 +707,8 @@ SLIDER
 387
 1121
 420
-wildcard-fine-tune
-wildcard-fine-tune
+wildcard-finetune
+wildcard-finetune
 1
 9
 1.0
@@ -1126,225 +1128,70 @@ NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment" repetitions="1" runMetricsEveryStep="false">
+  <experiment name="experiment 1" repetitions="1" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="1000"/>
-    <metric>[wealth] of turtles</metric>
-    <metric>[strategy] of turtles</metric>
-    <metric>[history] of turtles</metric>
-    <metric>[partner-history] of turtles</metric>
-    <enumeratedValueSet variable="p-split-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-duplication-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="assume-cooperation?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="lose-lose-payout">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="turnover-rate">
-      <value value="0"/>
-      <value value="0.1"/>
-      <value value="0.25"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="population">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="p-err" first="0" step="1" last="3"/>
-    <enumeratedValueSet variable="win-lose-payout">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-point-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="lose-win-payout">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="win-win-payout">
-      <value value="0.6"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="update-visuals?">
-      <value value="false"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="experiment 2" repetitions="1" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="500"/>
-    <metric>[wealth] of turtles</metric>
-    <metric>[memory-length] of turtles</metric>
-    <metric>[strategy] of max-one-of turtles [memory-length]</metric>
-    <enumeratedValueSet variable="p-split-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-duplication-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="assume-cooperation?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="lose-lose-payout">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="turnover-rate">
-      <value value="0.25"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="population">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-err">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="win-lose-payout">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-point-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="lose-win-payout">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="win-win-payout">
-      <value value="0.6"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="update-visuals?">
-      <value value="false"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="experiment 3" repetitions="1" runMetricsEveryStep="true">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="10000"/>
-    <metric>[wealth] of turtles</metric>
-    <metric>mean [mean strategy] of turtles</metric>
-    <enumeratedValueSet variable="rounds-per-GA-event">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-split-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="point-slider">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="population">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-err">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="win-lose-payout">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-point-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="lose-win-payout">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="update-visuals?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-duplication-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="assume-cooperation?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="lose-lose-payout">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="duplication-slider">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="turnover-rate">
-      <value value="0"/>
-      <value value="0.25"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="error-slider">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="win-win-payout">
-      <value value="0.6"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="split-slider">
-      <value value="1"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="effect of different probabilities" repetitions="1" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="100000"/>
-    <metric>max [average-wealth] of turtles</metric>
-    <metric>min [average-wealth] of turtles</metric>
-    <metric>mean [average-wealth] of turtles</metric>
-    <metric>standard-deviation [average-wealth] of turtles</metric>
-    <metric>[memory-length] of turtles</metric>
+    <metric>strategy-count</metric>
     <enumeratedValueSet variable="rounds-per-GA-event">
       <value value="10"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-memory">
-      <value value="0.1"/>
-      <value value="0.2"/>
-      <value value="0.4"/>
+      <value value="0.5"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="p-split-mutation">
-      <value value="2"/>
+    <enumeratedValueSet variable="split-finetune">
+      <value value="1"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="point-slider">
-      <value value="2"/>
+    <enumeratedValueSet variable="err-p-magnitude">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wildcard-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="duplication-finetune">
+      <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="population">
       <value value="100"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="p-err">
-      <value value="1"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="win-lose-payout">
       <value value="1"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="p-point-mutation">
+    <enumeratedValueSet variable="duplication-p-magnitude">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="point-finetune">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="point-p-magnitude">
       <value value="2"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="lose-win-payout">
       <value value="0"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="p-wildcard">
-      <value value="0"/>
-      <value value="0.001"/>
-      <value value="0.01"/>
-      <value value="0.1"/>
+    <enumeratedValueSet variable="error-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="split-p-magnitude">
+      <value value="2"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="update-visuals?">
       <value value="false"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="p-duplication-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="assume-cooperation?">
       <value value="true"/>
-      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wildcard-p-magnitude">
+      <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="lose-lose-payout">
       <value value="0.3"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="duplication-slider">
-      <value value="1"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="turnover-rate">
       <value value="0.25"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="error-slider">
-      <value value="1"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="win-win-payout">
       <value value="0.6"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="split-slider">
-      <value value="1"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
