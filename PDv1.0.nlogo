@@ -23,7 +23,7 @@ end
 
 to go
   ask turtles [
-    play-n-rounds (random 50) (rnd:weighted-one-of other turtles [1 / (distance myself + 0.01)])
+    play-n-rounds 200 (rnd:weighted-one-of other turtles [1 / (distance myself + 0.01)])
     set wealth max (list (wealth - (memory-length * cost-of-memory)) 0)
     set average-wealth (0.9 * average-wealth) + (0.1 * wealth)
     risk-mutation
@@ -458,7 +458,7 @@ turnover-rate
 turnover-rate
 0
 0.5
-0.2
+0.1
 0.05
 1
 NIL
@@ -822,6 +822,23 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "histogram last strategy-count"
+
+BUTTON
+483
+59
+626
+92
+one generation
+repeat rounds-per-GA-event [ go ]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
