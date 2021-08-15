@@ -433,7 +433,7 @@ population
 population
 10
 1000
-990.0
+100.0
 10
 1
 NIL
