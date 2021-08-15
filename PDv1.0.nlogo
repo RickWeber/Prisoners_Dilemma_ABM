@@ -840,6 +840,16 @@ NIL
 NIL
 1
 
+TEXTBOX
+863
+54
+1177
+119
+the \"visuals\" being updated indicate the \"cooperativeness\" of a turtle's strategy (the percent of 1's) by size and memory-length by color.
+12
+0.0
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
