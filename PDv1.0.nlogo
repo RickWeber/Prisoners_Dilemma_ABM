@@ -1,4 +1,3 @@
-;turtles-own [strategy history memory-length wealth meta-history]
 extensions [rnd]
 turtles-own [strategy
   partner-history
@@ -11,6 +10,7 @@ turtles-own [strategy
 
 to setup
   clear-all
+  random-seed 12345 ; Hey! That's the combination for my luggage!
   crt population [
     setxy random-xcor random-ycor
     set memory-length 1
