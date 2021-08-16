@@ -565,7 +565,7 @@ cost-of-memory-linear
 cost-of-memory-linear
 -0.05
 0.05
--0.023
+0.05
 0.001
 1
 NIL
@@ -739,7 +739,7 @@ rounds-per-tick
 rounds-per-tick
 1
 population
-1.0
+2.0
 1
 1
 NIL
@@ -765,18 +765,18 @@ PLOT
 502
 286
 652
-plot 1
+wealth distribution
 NIL
 NIL
 0.0
-100.0
+1.0
 0.0
 10.0
 true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "histogram [wealth * 100] of turtles"
+"default" 1.0 1 -16777216 true "" "histogram [wealth] of turtles"
 
 BUTTON
 525
@@ -802,7 +802,7 @@ SWITCH
 207
 only-child?
 only-child?
-1
+0
 1
 -1000
 
@@ -837,7 +837,7 @@ cost-of-memory-quadratic
 cost-of-memory-quadratic
 -0.1
 0.1
-0.0087
+0.005
 0.0001
 1
 NIL
@@ -850,7 +850,7 @@ SWITCH
 615
 accumulate-wealth?
 accumulate-wealth?
-1
+0
 1
 -1000
 
@@ -912,7 +912,7 @@ age-quadratic-cost
 age-quadratic-cost
 -0.001
 0.001
-5.0E-4
+0.0445
 0.0001
 1
 NIL
@@ -925,13 +925,59 @@ SLIDER
 617
 wealth-carryforward
 wealth-carryforward
-0
+-0.05
 0.1
-0.05
+0.1
 0.005
 1
 NIL
 HORIZONTAL
+
+BUTTON
+1502
+77
+1749
+110
+How's the oldest turtle doing?
+ask max-one-of turtles [age][\nshow age\nshow strategy\nshow wealth\n]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+PLOT
+1387
+388
+1587
+538
+age distribution
+NIL
+NIL
+0.0
+50.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "histogram [age] of turtles"
+
+MONITOR
+1603
+408
+1746
+453
+NIL
+max [age] of turtles
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1471,6 +1517,83 @@ NetLogo 6.2.0
     <enumeratedValueSet variable="turnover-rate">
       <value value="0.25"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="win-win-payout">
+      <value value="0.6"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="age and wealth" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="10"/>
+    <metric>first strategy-count</metric>
+    <metric>last strategy-count</metric>
+    <metric>[wealth] of turtles</metric>
+    <metric>[age] of turtles</metric>
+    <metric>[strategy] of turtles</metric>
+    <enumeratedValueSet variable="initial-cooperation?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="split-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wildcard-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="err-p-magnitude">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="duplication-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="only-child?">
+      <value value="false"/>
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="increasing-mc-of-memory?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="accumulate-wealth?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="population">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="duplication-p-magnitude">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="point-finetune">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="rounds-per-tick">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="point-p-magnitude">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="error-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="split-p-magnitude">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="cost-of-memory-linear" first="-0.05" step="0.01" last="0.05"/>
+    <enumeratedValueSet variable="cost-of-existence">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="cost-of-memory-quadratic" first="-0.01" step="0.005" last="0.01"/>
+    <enumeratedValueSet variable="wildcard-p-magnitude">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="lose-lose-payout">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="turnover-rate">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wealth-carryforward">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="age-quadratic-cost" first="-5.0E-4" step="0.005" last="0.05"/>
     <enumeratedValueSet variable="win-win-payout">
       <value value="0.6"/>
     </enumeratedValueSet>
