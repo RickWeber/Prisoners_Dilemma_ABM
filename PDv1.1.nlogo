@@ -5,6 +5,7 @@ turtles-own [strategy
   memory-length
   wealth
   mutations
+  age
 ]
 globals [extinct?]
 
@@ -16,7 +17,7 @@ to setup
     setxy random-xcor random-ycor
     set memory-length 1
     set strategy random-strategy memory-length
-    set history n-values memory-length [ifelse-value assume-cooperation? [1][0]]
+    set history n-values memory-length [ifelse-value initial-cooperation? [1][0]]
     set partner-history []
   ]
   reset-ticks
@@ -27,14 +28,13 @@ to setup-but-not-entirely
     setxy random-xcor random-ycor
     set memory-length 1
     set strategy random-strategy memory-length
-    set history n-values memory-length [ifelse-value assume-cooperation? [1][0]]
+    set history n-values memory-length [ifelse-value initial-cooperation? [1][0]]
     set partner-history []
   ]
 end
 
 to go
   if extinct? [
-    clear-all
     stop
   ]
   ask turtles [
@@ -44,6 +44,7 @@ to go
       ;      play-n-rounds 200 pref-choice other turtles
       ;    ]
     ]
+    set age age + 1
 ;    set wealth max (list (wealth - (memory-length * cost-of-memory) - cost-of-existence) 0) ; deal with cost of memory and burden of existence
     resolve-costs
     risk-mutation
@@ -60,69 +61,6 @@ to go
   tick
 end
 
-to resolve-costs
-  let existential-burden cost-of-existence
-  let complexity-cost (memory-length * cost-of-memory-linear) + ((memory-length ^ 2) * cost-of-memory-quadratic)
-  set wealth (wealth - existential-burden - complexity-cost) ; deal with cost of memory and burden of existence
-end
-
-to genetic-algorithm
-  let turnover-count turnover-rate * population
-  ; we're going to kill off all turtles with 0 wealth. Then we'll make up the difference with randomly selected with higher survival for higher wealth/fitness.
-  let ded count turtles with [wealth <= 0]
-  ; what if we need to kill everyone?
-  if ded >= count(turtles) [
-    set extinct? true ; deadman's switch
-    stop
-  ]
-  let random-kill-count turnover-count - ded
-  ask turtles with [wealth <= 0] [die]
-  ifelse random-kill-count > 0 [
-    ask rnd:weighted-n-of random-kill-count turtles [1 / wealth] [die]
-  ][
-    set turnover-count turnover-count - random-kill-count ; if we had to kill off too many turtles, hatch extras
-  ]
-  ; we can only kill a turtle once, but the fittest turtles could hatch multiple offspring.
-  ; I'll add a switch for this.
-  ifelse only-child? [
-    ask rnd:weighted-n-of turnover-count turtles [wealth] [hatch 1 [
-      rt random 90
-      fd 1
-    ]]
-  ][
-    foreach rnd:weighted-n-of-with-repeats turnover-count turtles [wealth] [
-      agent ->
-      ask agent [
-        hatch 1 [
-          rt random 90
-          fd 1
-        ]
-      ]
-    ]
-  ]
-
-end
-
-to risk-mutation
-  if point-p-magnitude > 0 [
-    if random-float 1 < point-finetune / (10 * point-p-magnitude) [
-      point-mutate
-      set mutations mutations + 1
-    ]
-  ]
-  if split-p-magnitude > 0 [
-    if (random-float 1 < split-finetune / (10 * split-p-magnitude)) and memory-length > 1 [
-      split-mutate
-      set mutations mutations + 1
-    ]
-  ]
-  if duplication-p-magnitude > 0 [
-    if random-float 1 < duplication-finetune / (10 * duplication-p-magnitude) [
-      duplicate-mutate
-      set mutations mutations + 1
-    ]
-  ]
-end
 
 to play-n-rounds [ n partner ]
   let my-total-payoff 0
@@ -153,14 +91,95 @@ to play-n-rounds [ n partner ]
     set partner-total-payoff partner-total-payoff + (partner-payoff / n)
   ]
   ; update wealth so it represents average performance
-  let my-old-wealth wealth * (length partner-history)
-  set partner-history fput partner partner-history ; don't need n if I'm setting it to a fixed number
-  set wealth (my-old-wealth + my-total-payoff) / length partner-history
+  ifelse accumulate-wealth? [ ; let an extra 1% of past wealth carry forward.
+    let my-old-wealth wealth * (length partner-history) * (1 + wealth-carryforward - (age-quadratic-cost * age ^ 2))
+    set partner-history fput partner partner-history
+    set wealth (my-old-wealth + my-total-payoff) / length partner-history
+    ask partner [
+      let partner-old-wealth wealth * (length partner-history) * (1 + wealth-carryforward - (age-quadratic-cost * age ^ 2))
+      set partner-history fput myself partner-history
+      set wealth (partner-old-wealth + my-total-payoff) / length partner-history
+  ]
+  ][
+    let my-old-wealth wealth * (length partner-history)
+    set partner-history fput partner partner-history ; update partner-history before dividing sum of past and new wealth.
+    set wealth (my-old-wealth + my-total-payoff) / length partner-history
+    ask partner [
+      let partner-old-wealth wealth * (length partner-history)
+      set partner-history fput myself partner-history
+      set wealth (partner-old-wealth + my-total-payoff) / length partner-history
+  ]
+  ]
 
-  ask partner [
-    let partner-old-wealth wealth * (length partner-history)
-    set partner-history fput myself partner-history
-    set wealth (partner-old-wealth + my-total-payoff) / length partner-history
+
+
+end
+
+
+to resolve-costs
+  let existential-burden cost-of-existence
+  let complexity-cost (memory-length * cost-of-memory-linear) + ((memory-length ^ 2) * cost-of-memory-quadratic)
+  set wealth (wealth - existential-burden - complexity-cost) ; deal with cost of memory and burden of existence
+end
+
+to genetic-algorithm
+  let turnover-count turnover-rate * population
+  ; we're going to kill off all turtles with 0 wealth. Then we'll make up the difference with randomly selected with higher survival for higher wealth/fitness.
+  let ded count turtles with [wealth <= 0]
+  ; what if we need to kill everyone?
+  if ded >= count(turtles) [
+    set extinct? true ; deadman's switch
+    ask turtles [die]
+    stop
+  ]
+  let random-kill-count turnover-count - ded
+  ask turtles with [wealth <= 0] [die]
+  ifelse random-kill-count > 0 [
+    ask rnd:weighted-n-of random-kill-count turtles [1 / wealth] [die]
+  ][
+    set turnover-count turnover-count - random-kill-count ; if we had to kill off too many turtles, hatch extras
+  ]
+  ; we can only kill a turtle once, but the fittest turtles could hatch multiple offspring.
+  ; I'll add a switch for this.
+  ifelse only-child? [
+    ask rnd:weighted-n-of turnover-count turtles [wealth] [hatch 1 [
+      rt random 90
+      fd 1
+      set age 0
+    ]]
+  ][
+    foreach rnd:weighted-n-of-with-repeats turnover-count turtles [wealth] [
+      agent ->
+      ask agent [
+        hatch 1 [
+          rt random 90
+          fd 1
+          set age 0
+        ]
+      ]
+    ]
+  ]
+
+end
+
+to risk-mutation
+  if point-p-magnitude > 0 [
+    if random-float 1 < point-finetune / (10 * point-p-magnitude) [
+      point-mutate
+      set mutations mutations + 1
+    ]
+  ]
+  if split-p-magnitude > 0 [
+    if (random-float 1 < split-finetune / (10 * split-p-magnitude)) and memory-length > 1 [
+      split-mutate
+      set mutations mutations + 1
+    ]
+  ]
+  if duplication-p-magnitude > 0 [
+    if random-float 1 < duplication-finetune / (10 * duplication-p-magnitude) [
+      duplicate-mutate
+      set mutations mutations + 1
+    ]
   ]
 end
 
@@ -184,7 +203,7 @@ end
 to duplicate-mutate
   set strategy sentence strategy strategy
   set memory-length memory-length + 1
-  set history fput (ifelse-value assume-cooperation? [1][0]) history
+  set history fput (ifelse-value initial-cooperation? [1][0]) history
 end
 
 ;;;;;;;;;;;;;
@@ -420,8 +439,8 @@ SWITCH
 112
 686
 145
-assume-cooperation?
-assume-cooperation?
+initial-cooperation?
+initial-cooperation?
 0
 1
 -1000
@@ -460,7 +479,7 @@ turnover-rate
 turnover-rate
 0
 0.5
-0.25
+0.1
 0.05
 1
 NIL
@@ -546,7 +565,7 @@ cost-of-memory-linear
 cost-of-memory-linear
 -0.05
 0.05
--0.032
+-0.023
 0.001
 1
 NIL
@@ -720,7 +739,7 @@ rounds-per-tick
 rounds-per-tick
 1
 population
-10.0
+1.0
 1
 1
 NIL
@@ -816,19 +835,19 @@ SLIDER
 495
 cost-of-memory-quadratic
 cost-of-memory-quadratic
--1
-1
-0.0
-0.001
+-0.1
+0.1
+0.0087
+0.0001
 1
 NIL
 HORIZONTAL
 
 SWITCH
-1235
-530
-1435
-563
+443
+582
+643
+615
 accumulate-wealth?
 accumulate-wealth?
 1
@@ -861,6 +880,58 @@ NIL
 NIL
 NIL
 1
+
+MONITOR
+98
+461
+214
+506
+Average fitness
+mean [wealth] of turtles
+2
+1
+11
+
+MONITOR
+225
+466
+320
+511
+average age
+mean [age] of turtles
+17
+1
+11
+
+SLIDER
+521
+539
+715
+572
+age-quadratic-cost
+age-quadratic-cost
+-0.001
+0.001
+5.0E-4
+0.0001
+1
+NIL
+HORIZONTAL
+
+SLIDER
+677
+584
+875
+617
+wealth-carryforward
+wealth-carryforward
+0
+0.1
+0.05
+0.005
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
