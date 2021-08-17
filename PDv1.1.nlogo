@@ -802,7 +802,7 @@ SWITCH
 207
 only-child?
 only-child?
-0
+1
 1
 -1000
 
@@ -837,7 +837,7 @@ cost-of-memory-quadratic
 cost-of-memory-quadratic
 -0.1
 0.1
-0.005
+0.01
 0.0001
 1
 NIL
@@ -912,7 +912,7 @@ age-quadratic-cost
 age-quadratic-cost
 -0.001
 0.001
-0.0445
+0.04
 0.0001
 1
 NIL
@@ -1524,12 +1524,11 @@ NetLogo 6.2.0
   <experiment name="age and wealth" repetitions="1" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="10"/>
+    <timeLimit steps="500"/>
     <metric>first strategy-count</metric>
     <metric>last strategy-count</metric>
     <metric>[wealth] of turtles</metric>
     <metric>[age] of turtles</metric>
-    <metric>[strategy] of turtles</metric>
     <enumeratedValueSet variable="initial-cooperation?">
       <value value="true"/>
     </enumeratedValueSet>
@@ -1547,7 +1546,6 @@ NetLogo 6.2.0
     </enumeratedValueSet>
     <enumeratedValueSet variable="only-child?">
       <value value="false"/>
-      <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="increasing-mc-of-memory?">
       <value value="false"/>
@@ -1580,7 +1578,7 @@ NetLogo 6.2.0
     <enumeratedValueSet variable="cost-of-existence">
       <value value="0"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="cost-of-memory-quadratic" first="-0.01" step="0.005" last="0.01"/>
+    <steppedValueSet variable="cost-of-memory-quadratic" first="-0.01" step="0.01" last="0.01"/>
     <enumeratedValueSet variable="wildcard-p-magnitude">
       <value value="1"/>
     </enumeratedValueSet>
@@ -1593,7 +1591,7 @@ NetLogo 6.2.0
     <enumeratedValueSet variable="wealth-carryforward">
       <value value="0.1"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="age-quadratic-cost" first="-5.0E-4" step="0.005" last="0.05"/>
+    <steppedValueSet variable="age-quadratic-cost" first="-0.05" step="0.005" last="0.05"/>
     <enumeratedValueSet variable="win-win-payout">
       <value value="0.6"/>
     </enumeratedValueSet>
