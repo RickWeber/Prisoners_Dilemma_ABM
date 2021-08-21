@@ -14,3 +14,5 @@ Each probabalistic parameter is split into an order of magnitude and a "fine tun
 That's a slightly annoying interface, but it means it's much easier to compare a 1 in 1000 error from a 1 in 100000 and also to compare 1% from 5%. 
 
 Another important difference (among at least several) between this model and the original is that this one doesn't impose an upper bound on memory size. Lindgren much more sensibly restricts the maximum memory length to the 5 most recent moves. I, instead, impose a cost of memory that discourages it's growth, but doesn't prevent monster strategies the size of feral floppy discs. 
+
+If you don't already have NetLogo, you can get it [here](https://ccl.northwestern.edu/netlogo/download.shtml).

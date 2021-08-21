@@ -454,7 +454,7 @@ population
 population
 10
 1000
-100.0
+1000.0
 10
 1
 NIL
@@ -565,7 +565,7 @@ cost-of-memory-linear
 cost-of-memory-linear
 -0.05
 0.05
-0.05
+-0.05
 0.001
 1
 NIL
@@ -754,7 +754,7 @@ cost-of-existence
 cost-of-existence
 0
 0.25
-0.0
+0.25
 0.01
 1
 NIL
@@ -837,7 +837,7 @@ cost-of-memory-quadratic
 cost-of-memory-quadratic
 -0.1
 0.1
-0.01
+0.005
 0.0001
 1
 NIL
@@ -850,7 +850,7 @@ SWITCH
 615
 accumulate-wealth?
 accumulate-wealth?
-0
+1
 1
 -1000
 
@@ -1592,6 +1592,85 @@ NetLogo 6.2.0
       <value value="0.1"/>
     </enumeratedValueSet>
     <steppedValueSet variable="age-quadratic-cost" first="-0.05" step="0.005" last="0.05"/>
+    <enumeratedValueSet variable="win-win-payout">
+      <value value="0.6"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="let it run" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="100000"/>
+    <metric>first strategy-count</metric>
+    <metric>last strategy-count</metric>
+    <enumeratedValueSet variable="initial-cooperation?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="split-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wildcard-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="err-p-magnitude">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="duplication-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="only-child?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="increasing-mc-of-memory?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="accumulate-wealth?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="population">
+      <value value="1000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="duplication-p-magnitude">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="point-finetune">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="point-p-magnitude">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="rounds-per-tick">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="error-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cost-of-memory-linear">
+      <value value="-0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="split-p-magnitude">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cost-of-existence">
+      <value value="0.25"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cost-of-memory-quadratic">
+      <value value="0.005"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="lose-lose-payout">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wildcard-p-magnitude">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="turnover-rate">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wealth-carryforward">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="age-quadratic-cost">
+      <value value="0.04"/>
+    </enumeratedValueSet>
     <enumeratedValueSet variable="win-win-payout">
       <value value="0.6"/>
     </enumeratedValueSet>
