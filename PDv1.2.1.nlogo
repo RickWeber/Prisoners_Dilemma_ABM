@@ -23,44 +23,42 @@ to setup
   reset-ticks
 end
 
-to setup-but-not-entirely
-  crt population [
-    setxy random-xcor random-ycor
-    set memory-length 1
-    set strategy random-strategy memory-length
-    set history n-values memory-length [ifelse-value initial-cooperation? [1][0]]
-    set partner-history []
-  ]
-end
-
 to go
   if extinct? [
     stop
   ]
   ask turtles [
     repeat rounds-per-tick [
-      play-n-rounds 200 one-of other turtles
+      ifelse ticks < isolated-rounds [
+        ifelse (count turtles with [color = [color] of myself] > 1)[
+          play-n-rounds 200 one-of other turtles with [color = [color] of myself]
+        ][
+          play-n-rounds 200 self
+        ]
+      ][
+        play-n-rounds 200 one-of other turtles
+      ]
       ;    if preferential-attachment? [
       ;      play-n-rounds 200 pref-choice other turtles
       ;    ]
     ]
     set age age + 1
-;    set wealth max (list (wealth - (memory-length * cost-of-memory) - cost-of-existence) 0) ; deal with cost of memory and burden of existence
     resolve-costs
     risk-mutation
-    ; show "cooperativeness" visually
-    set size 1 + mean strategy
+;    set size 1 + mean strategy
     set history sublist history 0 memory-length
   ]
   genetic-algorithm
-  if random-float 1 < wildcard-finetune / (10 * wildcard-p-magnitude) [
+  if random-float 1 < wildcard-p [
     ask one-of turtles [
       set strategy random-strategy memory-length
       setxy random-xcor random-ycor
+      set color random-color
     ]
   ]
   tick
 end
+
 
 
 to play-n-rounds [ n partner ]
@@ -103,9 +101,8 @@ end
 
 
 to resolve-costs
-  let existential-burden cost-of-existence
   let complexity-cost (memory-length * cost-of-memory-linear) + ((memory-length ^ 2) * cost-of-memory-quadratic)
-  set wealth (wealth - existential-burden - complexity-cost) ; deal with cost of memory and burden of existence
+  set wealth (wealth - cost-of-existence - complexity-cost) ; deal with cost of memory and burden of existence
 end
 
 to genetic-algorithm
@@ -148,31 +145,33 @@ to genetic-algorithm
 
 end
 
-to risk-mutation
-  if point-p-magnitude > 0 [
-    if random-float 1 < point-finetune / (10 * point-p-magnitude) [
-      point-mutate
-      set mutations mutations + 1
-    ]
-  ]
-  if split-p-magnitude > 0 [
-    if (random-float 1 < split-finetune / (10 * split-p-magnitude)) and memory-length > 1 [
-      split-mutate
-      set mutations mutations + 1
-    ]
-  ]
-  if duplication-p-magnitude > 0 [
-    if random-float 1 < duplication-finetune / (10 * duplication-p-magnitude) [
-      duplicate-mutate
-      set mutations mutations + 1
-    ]
-  ]
-end
+
 
 
 ;;;;;;;;;;;;;
 ; Mutations ;
 ;;;;;;;;;;;;;
+
+to risk-mutation
+  if point-p-magnitude > 0 [
+    if random-float 1 < point-p [
+      point-mutate
+      set mutations mutations + 1
+    ]
+  ]
+  if split-p-magnitude > 0 and memory-length > 1 [
+    if random-float 1 < split-p [
+      split-mutate
+      set mutations mutations + 1
+    ]
+  ]
+  if duplication-p-magnitude > 0 [
+    if random-float 1 < duplication-p [
+      duplicate-mutate
+      set mutations mutations + 1
+    ]
+  ]
+end
 
 to point-mutate
   let i random length strategy
@@ -225,23 +224,6 @@ to-report second-half [ lst ]
   report sublist lst (length lst / 2) (length lst)
 end
 
-to-report padded-hist [ initial-hist padding ]
-  if padding < 0 [
-    report sublist initial-hist 0 (length initial-hist + padding)
-  ]
-  report reduce sentence list initial-hist n-values padding [1]
-end
-
-;to-report most-common-strategy [ rank ]
-;  report most-common-item ([strategy] of turtles) rank
-;end
-;
-;to-report most-common-item [ lst rank ]
-;  if rank = 1 [ report modes lst ]
-;  ; remove modes
-;  report most-common-item (filter [l -> not member? l modes lst] lst) (rank - 1)
-;end
-
 to-report strategy-count
   let all-strategies [strategy] of turtles
   let unique-strategies remove-duplicates all-strategies
@@ -250,6 +232,26 @@ to-report strategy-count
   let order map [x -> position x sorted-counts] strategy-counts
   let sorted-strategies map [x -> item x unique-strategies] order
   report (list sorted-strategies sorted-counts)
+end
+
+to-report wildcard-p
+  report wildcard-finetune / (10 * wildcard-p-magnitude)
+end
+
+to-report point-p
+  report point-finetune / (10 * point-p-magnitude)
+end
+
+to-report duplication-p
+  report duplication-finetune / (10 * duplication-p-magnitude)
+end
+
+to-report split-p
+  report split-finetune / (10 * split-p-magnitude)
+end
+
+to-report random-color
+  report 5 + 10 * round random-float 14
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -361,10 +363,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-753
-237
-925
-270
+1191
+441
+1405
+474
 err-p-magnitude
 err-p-magnitude
 0
@@ -376,10 +378,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-753
-271
-925
-304
+1190
+474
+1404
+507
 point-p-magnitude
 point-p-magnitude
 0
@@ -391,10 +393,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-753
-307
-925
-340
+1191
+511
+1406
+544
 split-p-magnitude
 split-p-magnitude
 0
@@ -406,10 +408,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-753
-344
-966
-377
+1192
+548
+1406
+581
 duplication-p-magnitude
 duplication-p-magnitude
 0
@@ -483,10 +485,10 @@ max [memory-length] of turtles
 11
 
 SLIDER
-932
-272
-1104
-305
+1405
+473
+1577
+506
 point-finetune
 point-finetune
 1
@@ -498,10 +500,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-932
-237
-1104
-270
+1405
+441
+1577
+474
 error-finetune
 error-finetune
 1
@@ -513,10 +515,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-931
-308
-1103
-341
+1405
+507
+1577
+540
 split-finetune
 split-finetune
 1
@@ -528,10 +530,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-929
-346
-1109
-379
+1405
+541
+1579
+574
 duplication-finetune
 duplication-finetune
 1
@@ -592,10 +594,10 @@ NIL
 1
 
 SLIDER
-756
-384
-949
-417
+1192
+588
+1406
+621
 wildcard-p-magnitude
 wildcard-p-magnitude
 0
@@ -607,30 +609,30 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-756
-204
-906
-222
+1194
+408
+1344
+426
 orders of magnitude
 12
 0.0
 1
 
 TEXTBOX
-936
-202
-1086
-220
+1417
+405
+1567
+423
 fine tuning sliders
 12
 0.0
 1
 
 SLIDER
-932
-387
-1121
-420
+1406
+574
+1578
+607
 wildcard-finetune
 wildcard-finetune
 1
@@ -642,20 +644,20 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-756
-436
-906
-481
+1237
+639
+1387
+684
 Higher orders of magnitude mean lower probabilities.
 12
 0.0
 1
 
 MONITOR
-62
-665
-195
-710
+332
+455
+465
+500
 "cooperativeness"
 mean map mean [strategy] of turtles
 17
@@ -738,9 +740,9 @@ SLIDER
 417
 cost-of-existence
 cost-of-existence
-0
+-0.25
 0.25
--0.2
+-0.1
 0.01
 1
 NIL
@@ -769,8 +771,8 @@ BUTTON
 52
 672
 85
-repeat 50 times
-repeat 50 [ go ]
+repeat 10 times
+repeat 10 [ go ]
 NIL
 1
 T
@@ -793,10 +795,10 @@ only-child?
 -1000
 
 MONITOR
-59
-715
-179
-760
+208
+455
+328
+500
 longest memory
 max [memory-length] of turtles
 17
@@ -863,12 +865,27 @@ NIL
 NIL
 1
 
+SLIDER
+729
+221
+901
+254
+isolated-rounds
+isolated-rounds
+0
+10000
+0.0
+100
+1
+NIL
+HORIZONTAL
+
 TEXTBOX
-350
-638
-577
-773
-NOTE TO SELF:\n\nUpdate the model to allow isolated populations\nAlso allow those isolated populations to come together after some period
+731
+262
+881
+322
+Turtles only play with their own color for the first `isolated-rounds` rounds.
 12
 0.0
 1
@@ -1220,15 +1237,14 @@ NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="memory cost" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="memory cost" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="1000"/>
-    <exitCondition>count turtles &lt;= 0</exitCondition>
     <metric>[memory-length] of turtles</metric>
-    <steppedValueSet variable="cost-of-existence" first="-0.2" step="0.2" last="0.2"/>
-    <steppedValueSet variable="cost-of-memory-linear" first="-0.05" step="0.05" last="0.05"/>
-    <steppedValueSet variable="cost-of-memory-quadratic" first="0" step="0.05" last="0.1"/>
+    <steppedValueSet variable="cost-of-existence" first="-0.1" step="0.1" last="0.1"/>
+    <steppedValueSet variable="cost-of-memory-linear" first="-0.5" step="0.25" last="0.5"/>
+    <steppedValueSet variable="cost-of-memory-quadratic" first="0" step="0.01" last="0.1"/>
     <enumeratedValueSet variable="split-finetune">
       <value value="1"/>
     </enumeratedValueSet>
@@ -1279,6 +1295,9 @@ NetLogo 6.2.0
     </enumeratedValueSet>
     <enumeratedValueSet variable="win-win-payout">
       <value value="0.6"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="isolated-rounds">
+      <value value="0"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
