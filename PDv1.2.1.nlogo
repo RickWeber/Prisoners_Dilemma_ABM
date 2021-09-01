@@ -553,7 +553,7 @@ cost-of-memory-linear
 cost-of-memory-linear
 -0.05
 0.05
--0.5
+0.0
 0.001
 1
 NIL
@@ -742,7 +742,7 @@ cost-of-existence
 cost-of-existence
 -0.25
 0.25
--0.1
+0.0
 0.01
 1
 NIL
@@ -1242,9 +1242,13 @@ NetLogo 6.2.0
     <go>go</go>
     <timeLimit steps="1000"/>
     <metric>[memory-length] of turtles</metric>
-    <steppedValueSet variable="cost-of-existence" first="-0.1" step="0.1" last="0.1"/>
-    <steppedValueSet variable="cost-of-memory-linear" first="-0.5" step="0.25" last="0.5"/>
-    <steppedValueSet variable="cost-of-memory-quadratic" first="0" step="0.01" last="0.1"/>
+    <metric>ticks</metric>
+    <enumeratedValueSet variable="cost-of-existence">
+      <value value="0"/>
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="cost-of-memory-linear" first="0" step="0.25" last="0.5"/>
+    <steppedValueSet variable="cost-of-memory-quadratic" first="0" step="0.01" last="0.3"/>
     <enumeratedValueSet variable="split-finetune">
       <value value="1"/>
     </enumeratedValueSet>
