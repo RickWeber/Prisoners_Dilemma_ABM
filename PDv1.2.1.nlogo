@@ -46,7 +46,7 @@ to go
     resolve-costs
     risk-mutation
 ;    set size 1 + mean strategy
-    set history sublist history 0 memory-length
+;    set history sublist history 0 memory-length
   ]
   genetic-algorithm
   if random-float 1 < wildcard-p [
@@ -58,8 +58,6 @@ to go
   ]
   tick
 end
-
-
 
 to play-n-rounds [ n partner ]
   let my-total-payoff 0
@@ -98,7 +96,6 @@ to play-n-rounds [ n partner ]
     set wealth (partner-old-wealth + my-total-payoff) / length partner-history
   ]
 end
-
 
 to resolve-costs
   let complexity-cost (memory-length * cost-of-memory-linear) + ((memory-length ^ 2) * cost-of-memory-quadratic)
@@ -144,9 +141,6 @@ to genetic-algorithm
   ]
 
 end
-
-
-
 
 ;;;;;;;;;;;;;
 ; Mutations ;
@@ -333,10 +327,10 @@ NIL
 1
 
 SLIDER
-942
-475
-1114
-508
+947
+216
+1119
+249
 win-win-payout
 win-win-payout
 0
@@ -348,10 +342,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-942
-514
-1117
-547
+947
+255
+1122
+288
 lose-lose-payout
 lose-lose-payout
 0
@@ -386,17 +380,17 @@ point-p-magnitude
 point-p-magnitude
 0
 8
-2.0
+1.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1191
-511
-1406
-544
+1189
+507
+1404
+540
 split-p-magnitude
 split-p-magnitude
 0
@@ -408,10 +402,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1192
-548
-1406
-581
+1190
+538
+1404
+571
 duplication-p-magnitude
 duplication-p-magnitude
 0
@@ -594,10 +588,10 @@ NIL
 1
 
 SLIDER
-1192
-588
-1406
-621
+1191
+571
+1405
+604
 wildcard-p-magnitude
 wildcard-p-magnitude
 0
@@ -609,20 +603,20 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-1194
-408
-1344
-426
+1206
+418
+1356
+436
 orders of magnitude
 12
 0.0
 1
 
 TEXTBOX
-1417
-405
-1567
-423
+1418
+417
+1568
+435
 fine tuning sliders
 12
 0.0
@@ -644,10 +638,10 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-1237
-639
-1387
-684
+1219
+615
+1369
+660
 Higher orders of magnitude mean lower probabilities.
 12
 0.0
@@ -708,16 +702,6 @@ NIL
 NIL
 1
 
-TEXTBOX
-863
-54
-1177
-119
-the \"visuals\" being updated indicate the \"cooperativeness\" of a turtle's strategy (the percent of 1's) by size and memory-length by color.
-12
-0.0
-1
-
 SLIDER
 476
 305
@@ -727,7 +711,7 @@ rounds-per-tick
 rounds-per-tick
 1
 population
-10.0
+1.0
 1
 1
 NIL
@@ -742,7 +726,7 @@ cost-of-existence
 cost-of-existence
 -0.25
 0.25
-0.0
+-0.1
 0.01
 1
 NIL
@@ -814,7 +798,7 @@ cost-of-memory-quadratic
 cost-of-memory-quadratic
 -0.1
 0.1
-0.0
+0.0549
 0.0001
 1
 NIL
