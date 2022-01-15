@@ -8,7 +8,7 @@ to setup
     setxy random-xcor random-ycor
     set memory-length 1
     set strategy random-strategy memory-length
-    set history n-values 1 [2 ^ (1 + length strategy)]; assume initial cooperation. Can change this later
+    set history n-values (2 ^ (1 + length strategy)) [1]; assume initial cooperation. Can change this later
     set partner-history []
   ]
   reset-ticks
@@ -31,11 +31,14 @@ to play-n-rounds [ n partner ]
     ;; note: the first round will be affected by the previous partner.
     let my-move make-move strategy history
     set my-move ifelse-value (random-float 1 < error-prob) [my-move] [abs (my-move - 1)]
-    let partner-move make-move ([strategy] of partner) ([history] of partner)
-    set partner-move ifelse-value (random-float 1 < error-prob) [partner-move] [abs (partner-move - 1)]
-    set history fput partner-move fput my-move sublist history 0 (memory-length + 2)
+    let partner-move 0
     ask partner [
-      set history fput my-move fput partner-move sublist history 0 (memory-length + 2)
+      set partner-move make-move ([strategy] of partner) ([history] of partner)
+      set partner-move ifelse-value (random-float 1 < error-prob) [partner-move] [abs (partner-move - 1)]
+    ]
+    set history fput partner-move fput my-move sublist history 0 (min list (length history) (memory-length + 1))
+    ask partner [
+      set history fput my-move fput partner-move sublist history 0 (min list (length history) (memory-length + 1))
     ]
     ; determine payoffs
     let my-payoff ifelse-value (my-move = 1) [
@@ -95,7 +98,7 @@ to risk-mutation
   if random-float 1 < point-prob [
     point-mutate
   ]
-  if random-float 1 < split-prob [
+  if random-float 1 < split-prob and memory-length > 1 [ ; don't let them lose their memory altogether. Unless I replace it with some default behavior.
     split-mutate
   ]
   if random-float 1 < duplication-prob [
@@ -170,7 +173,7 @@ to-report random-strategy [ mem-length ]
 end
 
 to-report make-move [ strat hist ]
-  report item (binary-to-decimal hist) strat
+  report item (binary-to-decimal sublist hist 0 memory-length) strat
 end
 
 to-report first-half [ lst ]
@@ -276,7 +279,7 @@ cost-of-memory-linear
 cost-of-memory-linear
 -20
 20
-0.0
+-1.0
 1
 1
 NIL
@@ -306,7 +309,7 @@ cost-of-existence
 cost-of-existence
 -20
 20
-0.0
+-5.0
 1
 1
 NIL
@@ -366,7 +369,7 @@ error-finetune
 error-finetune
 0
 10
-5.0
+1.0
 1
 1
 NIL
@@ -381,7 +384,7 @@ error-magnitude
 error-magnitude
 1
 100
-50.0
+1.0
 1
 1
 NIL
@@ -422,7 +425,7 @@ wildcard-magnitude
 wildcard-magnitude
 1
 100
-100.0
+1.0
 1
 1
 NIL
@@ -437,7 +440,7 @@ point-finetune
 point-finetune
 0
 10
-5.0
+1.0
 1
 1
 NIL
@@ -452,7 +455,7 @@ point-magnitude
 point-magnitude
 1
 100
-100.0
+1.0
 1
 1
 NIL
@@ -467,7 +470,7 @@ split-finetune
 split-finetune
 0
 10
-5.0
+1.0
 1
 1
 NIL
@@ -482,7 +485,7 @@ split-magnitude
 split-magnitude
 1
 100
-100.0
+1.0
 1
 1
 NIL
@@ -497,7 +500,7 @@ duplicate-finetune
 duplicate-finetune
 0
 10
-5.0
+1.0
 1
 1
 NIL
@@ -512,7 +515,7 @@ duplicate-magnitude
 duplicate-magnitude
 1
 100
-100.0
+1.0
 1
 1
 NIL
@@ -586,6 +589,23 @@ BUTTON
 384
 NIL
 go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+33
+404
+180
+437
+NIL
+repeat 50 [ go ]
 NIL
 1
 T
@@ -942,6 +962,88 @@ NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="try-lots" repetitions="2" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="1000"/>
+    <metric>strategy-count</metric>
+    <enumeratedValueSet variable="point-magnitude">
+      <value value="1"/>
+      <value value="10"/>
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="split-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wildcard-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="duplicate-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="error-magnitude">
+      <value value="1"/>
+      <value value="10"/>
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="population">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="win-lose-payout">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="point-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="lose-win-payout">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="error-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cost-of-memory-linear">
+      <value value="-1"/>
+      <value value="0"/>
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cost-of-existence">
+      <value value="-5"/>
+      <value value="0"/>
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="split-magnitude">
+      <value value="1"/>
+      <value value="10"/>
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cost-of-memory-quadratic">
+      <value value="-1"/>
+      <value value="0"/>
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wildcard-magnitude">
+      <value value="1"/>
+      <value value="10"/>
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="lose-lose-payout">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="duplicate-magnitude">
+      <value value="1"/>
+      <value value="10"/>
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="turnover-rate">
+      <value value="0.05"/>
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="win-win-payout">
+      <value value="80"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default

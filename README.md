@@ -16,3 +16,11 @@ That's a slightly annoying interface, but it means it's much easier to compare a
 Another important difference (among at least several) between this model and the original is that this one doesn't impose an upper bound on memory size. Lindgren much more sensibly restricts the maximum memory length to the 5 most recent moves. I, instead, impose a cost of memory that discourages it's growth, but doesn't prevent monster strategies the size of feral floppy discs. 
 
 If you don't already have NetLogo, you can get it [here](https://ccl.northwestern.edu/netlogo/download.shtml).
+
+# Update: Jan 15, 2022
+I've streamlined the code a bit (see PDv2.nlogo) and ran a few thousand
+experiments to figure out reasonable parameter values. That set of experiments
+has generated a 91GB csv file, so now I've got to figure out how to parse that
+into something useful! That will be a minor project unto itself. 
+
+Stay tuned!
