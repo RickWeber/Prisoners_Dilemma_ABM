@@ -7,6 +7,9 @@ import functools
 import numpy as np
 import pandas as pd
 
+# TODO:
+# * turtle's are getting strategies of None. Fix it!
+
 # Convenience functions:
 
 def binary_to_decimal(bin_list):
@@ -43,7 +46,8 @@ class Turtle(Agent):
         my_group = [a for a in self.model.schedule.agents if a.group == self.group]
         # partner = self.random.choice(my_group) # do I need to make it another agent?
         # preferential attachment 
-        partner = self.random.choice(my_group, [(w.partner_history == self) + 1 for w in my_group])
+        partner = self.random.choice([(w.partner_history == self) + 1 for w in my_group])
+        partner = self.model.schedule.agents[partner]
         # play multiple rounds of the game
         for r in range(self.model.num_rounds):
             self.move = self.return_move()
@@ -64,7 +68,10 @@ class Turtle(Agent):
         self.age += 1
 
     def return_move(self):
-        move = self.strategy[binary_to_decimal(self.history[-self.memory_length:])]
+        if not self.strategy:
+            return random.randint(0,1)
+        history_index = len(self.history) - self.memory_length
+        move = self.strategy[binary_to_decimal(self.history[history_index:])]
         if random.random() < self.model.prob_err:
             return abs(move - 1)
         else:
@@ -103,19 +110,8 @@ class Turtle(Agent):
     def existential_burden(self):
         fixed_term = (-1)
         linear_term = (-1) * self.memory_length
-        linear_term = 0.10 * self.memory_length ** 2
+        quadratic_term = 0.10 * self.memory_length ** 2
         return fixed_term + linear_term + quadratic_term
-
-    def spawn(self):
-        """ create a new turtle with the same properties as self"""
-        next_index = self.model.next_id()
-        new_turtle = Turtle(next_index, self.model)
-        new_turtle.group = self.group
-        new_turtle.memory_length = self.memory_length
-        new_turtle.history = self.history
-        new_turtle.age = 0
-        new_turtle.partner_history = self.partner_history
-        new_turtle.move = self.move
 
 class World(Model):
     """A model with some number of agents."""
@@ -131,18 +127,24 @@ class World(Model):
         self.turnover_rate = 0.1
         self.num_rounds = 100
         # create agents
-        [Turtle(i, self) for i in range(self.population)]
-        #for i in range(self.population):
-        #    a = Turtle(i, self)
+        for i in range(self.population):
+            a = Turtle(i, self)
+            self.schedule.add(a)
         self.datacollector = DataCollector(
                 model_reporters={"strategy_freq": strategy_freq})
 
     def step(self):
+        for i in range(5):
+            self.schedule.step()
+        self.genetic_algorithm()
         self.datacollector.collect(self)
-        self.schedule.step()
+
+    def prisoners_dilemma(self, player1, player2):
+        payoffs = [[1,1],[0,3]],[[3,0],[2,2]]
+        return payoffs[player1.move][player2.move]
 
     def genetic_algorithm(self):
-        turtles = model.schedule.agents
+        turtles = self.schedule.agents
         sorted_turtles = sorted(turtles, key = lambda turtle: turtle.wealth)
         # TODO: update for weighted prob of spawn/death
         turnover_count = round(self.population * self.turnover_rate)
@@ -150,13 +152,20 @@ class World(Model):
         turtles_to_sprout = sorted_turtles[:turnover_count]
         # self.schedule.agents with least wealth .remove
         for t in turtles_to_sprout:
-            self.schedule.spawn(t) 
+            t.spawn()
         for t in turtles_to_die:
             self.schedule.remove(t)
 
-    def prisoners_dilemma(self, player1, player2):
-        payoffs = [[[1,1],[0,3]],[[3,0],[2,2]]]
-        return payoffs[player1][player2]
+    def spawn(self, parent):
+        """create a new turtle with the same properties as parent"""
+        child = Turtle(self.next_id, self)
+        child.group = parent.group
+        child.memory_length = parent.memory_length
+        child.history = parent.history
+        child.age = 0
+        child.partner_history = parent.partner_history
+        child.move = parent.move
+        self.schedule.add(child)
 
 # random seed
 random.seed(42)
