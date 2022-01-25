@@ -3,7 +3,7 @@ turtles-own [strategy partner-history history memory-length wealth]
 
 to setup
   clear-all
-  random-seed 12345 ; Hey! That's the combination for my luggage!
+  ;random-seed 12345 ; Hey! That's the combination for my luggage!
   crt population [
     setxy random-xcor random-ycor
     set memory-length 1
@@ -16,7 +16,9 @@ end
 
 to go
   ask turtles [
-    play-n-rounds 100 one-of other turtles
+    repeat 5 [
+      play-n-rounds 100 one-of other turtles ; They should play a few rounds with a few different turtles
+    ]
     resolve-costs
     risk-mutation
   ]
@@ -82,7 +84,14 @@ to genetic-algorithm
       ]
     ]
   ]
-  if (random-float 1 < wildcard-prob) [
+  ask min-n-of turnover-count turtles [wealth] [ die ] ; least successful turtles die
+;  foreach list rnd:weighted-n-of turnover-count turtles [1 / wealth] [
+;    agent ->
+;    ask agent [
+;      die
+;    ]
+;  ]
+  if (wildcard-prob > random-float 1) [
     ask one-of turtles [
       set strategy random-strategy memory-length
       setxy random-xcor random-ycor
@@ -294,7 +303,7 @@ cost-of-memory-quadratic
 cost-of-memory-quadratic
 -5
 5
-0.0
+2.0
 1
 1
 NIL
@@ -309,7 +318,7 @@ cost-of-existence
 cost-of-existence
 -20
 20
--5.0
+0.0
 1
 1
 NIL
@@ -324,7 +333,7 @@ turnover-rate
 turnover-rate
 0
 1
-0.05
+0.1
 0.01
 1
 NIL
@@ -384,7 +393,7 @@ error-magnitude
 error-magnitude
 1
 100
-1.0
+10.0
 1
 1
 NIL
@@ -425,7 +434,7 @@ wildcard-magnitude
 wildcard-magnitude
 1
 100
-1.0
+100.0
 1
 1
 NIL
@@ -455,7 +464,7 @@ point-magnitude
 point-magnitude
 1
 100
-1.0
+2.0
 1
 1
 NIL
@@ -485,7 +494,7 @@ split-magnitude
 split-magnitude
 1
 100
-1.0
+100.0
 1
 1
 NIL
@@ -515,7 +524,7 @@ duplicate-magnitude
 duplicate-magnitude
 1
 100
-1.0
+100.0
 1
 1
 NIL
@@ -1037,6 +1046,69 @@ NetLogo 6.2.0
     </enumeratedValueSet>
     <enumeratedValueSet variable="turnover-rate">
       <value value="0.05"/>
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="win-win-payout">
+      <value value="80"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="long-runs" repetitions="10" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="100000"/>
+    <metric>strategy-count</metric>
+    <enumeratedValueSet variable="point-magnitude">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="split-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wildcard-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="duplicate-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="error-magnitude">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="population">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="win-lose-payout">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="point-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="lose-win-payout">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="error-finetune">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cost-of-memory-linear">
+      <value value="-1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cost-of-existence">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="split-magnitude">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cost-of-memory-quadratic">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wildcard-magnitude">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="lose-lose-payout">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="duplicate-magnitude">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="turnover-rate">
       <value value="0.1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="win-win-payout">

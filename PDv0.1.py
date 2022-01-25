@@ -18,7 +18,7 @@ def binary_to_decimal(bin_list):
     functools.reduce(lambda a, b: a+b, result)
 
 def strategy_freq(model): 
-    strategies = [agent.strategy for agent in model.schedule.agents]
+    strategies = ["".join(agent.strategy) for agent in model.schedule.agents]
     unique_strategies, frequencies = np.unique(strategies, return_counts = True)
     pd.DataFrame(data = {'strat': unique_strategies, 'freq': frequencies})
 
@@ -32,19 +32,18 @@ class Turtle(Agent):
         self.wealth = 0
         self.age = 0
         self.strategy = self.random_strategy()
-        self.move = random.randint(0,1)
+        self.move = random.randint(0,1) # initial play 
         if self.model.num_groups > 1:
             self.group = self.random.choice(range(self.model.num_groups))
         else:
             self.group = 0
 
     def step(self):
-        my_group = self.model.schedule.agents
-        my_group = [a for a in my_group if a.group == self.group]
         # choose partner from group
+        my_group = [a for a in self.model.schedule.agents if a.group == self.group]
         # partner = self.random.choice(my_group) # do I need to make it another agent?
         # preferential attachment 
-        partner = self.random.choices(my_group, [(w.partner_history == self) + 1 for w in my_group])
+        partner = self.random.choice(my_group, [(w.partner_history == self) + 1 for w in my_group])
         # play multiple rounds of the game
         for r in range(self.model.num_rounds):
             self.move = self.return_move()
@@ -52,10 +51,8 @@ class Turtle(Agent):
             my_gain, partner_gain = self.model.prisoners_dilemma(self, partner)
             self.wealth += my_gain
             partner.wealth += partner_gain
-            self.history = self.history.append(self.move)
-            self.history = self.history.append(partner.move)
-            partner.history = partner.history.append(self.move)
-            partner.history = partner.history.append(partner.move)
+            self.history = self.history + [self.move, partner.move]
+            partner.history = partner.history + [partner.move, self.move]
         # determine costs of existence
         my_costs = self.existential_burden() * self.model.num_rounds
         partner_costs = partner.existential_burden() * self.model.num_rounds
@@ -67,14 +64,9 @@ class Turtle(Agent):
         self.age += 1
 
     def return_move(self):
-        slice_index = len(self.history) - self.memory_length
-        item = binary_to_decimal(self.history[slice_index:])
-        move = self.strategy[item]
+        move = self.strategy[binary_to_decimal(self.history[-self.memory_length:])]
         if random.random() < self.model.prob_err:
-            if move == 1:
-                return 0
-            else:
-                return 1
+            return abs(move - 1)
         else:
             return move
 
@@ -88,35 +80,42 @@ class Turtle(Agent):
 
     def random_strategy(self):
         self.strategy = [random.randint(0,1) for i in range(self.memory_length)]
+        # self.strategy = "".join([random.randint(0,1) for i in # range(self.memory_length)]) # binary string instead of list?
 
     def mutate_split(self):
-        if self.memory_length <= 1:
-            return False
-        self.memory_length -= 1
-        strategy_length = len(self.strategy)
-        if random.randint(0,1) == 1:
-            self.strategy = self.strategy[range(strategy_length / 2)]
-        else:
-            self.strategy = self.strategy[range(strategy_length / 2, strategy_length)]
+        if self.memory_length > 1:
+            self.memory_length -= 1
+            if random.randint(0,1) == 1:
+                self.strategy = self.strategy[:int(len(self.strategy)/2)]
+            else:
+                self.strategy = self.strategy[int(len(self.strategy)/2):]
 
     def mutate_duplicate(self):
         self.memory_length += 1
-        self.strategy = self.strategy.append(self.strategy)
+        self.strategy = self.strategy + self.strategy
         if len(self.history) < self.memory_length:
             self.history.append(random.randint(0,1)) 
 
     def mutate_point(self):
         point = random.randint(0,len(self.strategy))
-        if self.strategy[point] == 1:
-            self.strategy[point] = 0
-        else:
-            self.strategy[point] = 1
+        self.strategy[point] = abs(self.strategy[point] - 1)
 
     def existential_burden(self):
         fixed_term = (-1)
         linear_term = (-1) * self.memory_length
         linear_term = 0.10 * self.memory_length ** 2
         return fixed_term + linear_term + quadratic_term
+
+    def spawn(self):
+        """ create a new turtle with the same properties as self"""
+        next_index = self.model.next_id()
+        new_turtle = Turtle(next_index, self.model)
+        new_turtle.group = self.group
+        new_turtle.memory_length = self.memory_length
+        new_turtle.history = self.history
+        new_turtle.age = 0
+        new_turtle.partner_history = self.partner_history
+        new_turtle.move = self.move
 
 class World(Model):
     """A model with some number of agents."""
@@ -132,8 +131,9 @@ class World(Model):
         self.turnover_rate = 0.1
         self.num_rounds = 100
         # create agents
-        for i in range(self.population):
-            a = Turtle(i, self)
+        [Turtle(i, self) for i in range(self.population)]
+        #for i in range(self.population):
+        #    a = Turtle(i, self)
         self.datacollector = DataCollector(
                 model_reporters={"strategy_freq": strategy_freq})
 
@@ -144,24 +144,19 @@ class World(Model):
     def genetic_algorithm(self):
         turtles = model.schedule.agents
         sorted_turtles = sorted(turtles, key = lambda turtle: turtle.wealth)
-        #top_threshold = np.quantile(turtle_wealth, 0.9)
-        #bottom_threshold = np.quantile(turtle_wealth, 0.1)
-        # have least wealthy turtles die
+        # TODO: update for weighted prob of spawn/death
         turnover_count = round(self.population * self.turnover_rate)
         turtles_to_die = sorted_turtles[(self.population - turnover_count):]
         turtles_to_sprout = sorted_turtles[:turnover_count]
         # self.schedule.agents with least wealth .remove
+        for t in turtles_to_sprout:
+            self.schedule.spawn(t) 
         for t in turtles_to_die:
             self.schedule.remove(t)
-        for t in turtles_to_sprout:
-            self.schedule.spawn(t) # I don't think spawn() exists.
-
-        # have wealthiest turtles spawn
 
     def prisoners_dilemma(self, player1, player2):
-        payoffs = [(1, 1), (3, 0), (0, 3), (2, 2)]
-        return payoffs[binary_to_decimal([player1.move, player2.move])]
-
+        payoffs = [[[1,1],[0,3]],[[3,0],[2,2]]]
+        return payoffs[player1][player2]
 
 # random seed
 random.seed(42)
