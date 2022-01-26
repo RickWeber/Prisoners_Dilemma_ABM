@@ -243,7 +243,7 @@ population
 population
 25
 1000
-100.0
+500.0
 5
 1
 NIL
@@ -1055,7 +1055,7 @@ NetLogo 6.2.0
   <experiment name="long-runs" repetitions="10" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="100000"/>
+    <timeLimit steps="50000"/>
     <metric>strategy-count</metric>
     <enumeratedValueSet variable="point-magnitude">
       <value value="2"/>
@@ -1073,7 +1073,7 @@ NetLogo 6.2.0
       <value value="10"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="population">
-      <value value="100"/>
+      <value value="500"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="win-lose-payout">
       <value value="100"/>
