@@ -27,6 +27,11 @@ def strategy_freq(model):
     unique_strategies, frequencies = np.unique(strategies, return_counts = True)
     return pd.DataFrame(data = {'strat': unique_strategies, 'freq': frequencies})
 
+def age_freq(model):
+    ages = [agent.age for agent in model.schedule.agents]
+    unique_ages, frequencies = np.unique(ages, return_counts = True)
+    return pd.DataFrame(data = {'age': unique_ages, 'freq': frequencies})
+
 class Turtle(Agent):
     """A basic agent."""
     def __init__(self, unique_id, model):
@@ -117,7 +122,7 @@ class Turtle(Agent):
 
 class World(Model):
     """A model with some number of agents."""
-    def __init__(self, N, num_groups):
+    def __init__(self, N, num_groups, seed=None):
         self.current_id = 0
         self.running = True
         self.population = N
@@ -166,15 +171,3 @@ class World(Model):
         child.move = parent.move
         self.schedule.add(child)
 
-
-# random seed
-random.seed(42)
-
-# batch run
-fixed_params = {"N": 100}
-variable_params ={"num_groups": range(1,5,1)}
-
-batch_run = BatchRunner(World, variable_params, fixed_params, iterations=5, max_steps=1000, model_reporters={"Strategies": strategy_freq})
-batch_run.run_all()
-run_data = batch_run.get_model_vars_dataframe()
-print(run_data.head())

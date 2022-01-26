@@ -1,6 +1,3 @@
-# random seed
-random.seed(42)
-
 # batch run
 fixed_params = {"N": 100}
 variable_params ={"num_groups": range(1,5,1)}
