@@ -625,6 +625,23 @@ NIL
 NIL
 1
 
+BUTTON
+766
+276
+945
+309
+NIL
+show strategy-count
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 

@@ -11,16 +11,8 @@ from pyrsistent import b
 # Convenience functions:
 
 def binary_to_decimal(bin_list):
-    l = len(bin_list)
-    if l < 1:
-        return 0
-    if l < 2:
-        return bin_list[0]
-    bases = [2 ** i for i in range(l)][::-1]
-    result = [b for b, i in zip(bases, bin_list) if i]
-    if result == []:
-        return 0
-    return functools.reduce(lambda a, b: a+b, result)
+    bin = "".join(map(str, bin_list))
+    return int(bin,2)
 
 def strategy_freq(model): 
     strategies = ["".join(map(str, agent.strategy)) for agent in model.schedule.agents]
