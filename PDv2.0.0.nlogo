@@ -258,7 +258,7 @@ win-win-payout
 win-win-payout
 0
 100
-80.0
+79.0
 1
 1
 NIL
@@ -273,7 +273,7 @@ lose-lose-payout
 lose-lose-payout
 0
 100
-20.0
+17.0
 1
 1
 NIL
@@ -575,10 +575,10 @@ duplication-prob
 11
 
 BUTTON
-32
-298
-105
-331
+23
+13
+96
+46
 NIL
 setup
 NIL
@@ -592,10 +592,10 @@ NIL
 1
 
 BUTTON
-35
-351
-98
-384
+22
+56
+85
+89
 NIL
 go
 NIL
@@ -609,10 +609,10 @@ NIL
 1
 
 BUTTON
-33
-404
-180
-437
+20
+100
+167
+133
 NIL
 repeat 50 [ go ]
 NIL
@@ -984,7 +984,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.0
+NetLogo 6.3.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
