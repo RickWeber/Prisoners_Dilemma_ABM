@@ -191,13 +191,26 @@ to-report second-half [ lst ]
   report sublist lst (length lst / 2) (length lst)
 end
 
-to-report strategy-count
+to-report unique-strategies
   let all-strategies [strategy] of turtles
-  let unique-strategies remove-duplicates all-strategies
-  let strategy-counts map [this-strategy -> count turtles with [strategy = this-strategy]] unique-strategies
-  let sorted-counts sort-by > strategy-counts ; sort in descending order of frequency
-  let order map [x -> position x sorted-counts] strategy-counts
-  let sorted-strategies map [x -> item x unique-strategies] order
+  report remove-duplicates all-strategies
+end
+
+to-report one-strategy-count [ this-strategy ]
+  report count turtles with [strategy = this-strategy]
+end
+
+to-report strategy-count
+  ; count each unique strategy
+  let strategy-counts map [this-strategy -> one-strategy-count this-strategy] unique-strategies
+  ; sort in descending order of frequency
+  let sorted-counts sort-by > strategy-counts
+  ; sort by strategy length
+  let length-sorted-strategies sort-by [[x y] -> length x < length y] unique-strategies
+  ; sort by the decimal value of a strategy
+  let numerical-sorted-strategies sort-by [[x y] -> binary-to-decimal x < binary-to-decimal y] length-sorted-strategies
+  ; resort strategies by popularity
+  let sorted-strategies sort-by [[x y] -> one-strategy-count x > one-strategy-count y] numerical-sorted-strategies
   report (list sorted-strategies sorted-counts)
 end
 
@@ -249,7 +262,7 @@ population
 population
 2
 1000
-237.0
+567.0
 5
 1
 NIL
@@ -425,7 +438,7 @@ wildcard-finetune
 wildcard-finetune
 0
 10
-1.0
+10.0
 1
 1
 NIL
@@ -470,7 +483,7 @@ point-magnitude
 point-magnitude
 1
 100
-2.0
+1.0
 1
 1
 NIL
@@ -485,7 +498,7 @@ split-finetune
 split-finetune
 0
 10
-1.0
+10.0
 1
 1
 NIL
@@ -515,7 +528,7 @@ duplicate-finetune
 duplicate-finetune
 0
 10
-1.0
+10.0
 1
 1
 NIL
@@ -687,7 +700,7 @@ interactions-per-round
 interactions-per-round
 1
 100
-50.0
+27.0
 1
 1
 NIL
@@ -701,6 +714,23 @@ BUTTON
 go and show
 repeat 50 [\n  go\n  show strategy-count\n]
 NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+237
+155
+361
+188
+go and show
+go\nshow strategy-count
+T
 1
 T
 OBSERVER
