@@ -79,14 +79,16 @@ to genetic-algorithm
       ]
     ]
   ]
-  ask min-n-of turnover-count turtles [wealth] [ die ] ; least successful turtles die
-  ; or make death probabalistic with weights based on wealth
-;  foreach list rnd:weighted-n-of turnover-count turtles [1 / wealth] [
-;    agent ->
-;    ask agent [
-;      die
-;    ]
-;  ]
+  ifelse deterministic-death? [
+    ask min-n-of turnover-count turtles [wealth] [ die ] ; least successful turtles die
+  ] [
+    foreach (list rnd:weighted-n-of turnover-count turtles [ 1 / wealth ] ) [
+      agent ->
+      ask agent [
+        die
+      ]
+    ]
+  ]
   ; occasionally give an agent a new random strategy
   if (wildcard-prob > random-float 1) [
     ask one-of turtles [
@@ -96,9 +98,16 @@ to genetic-algorithm
     ]
   ]
   ; reset wealth each tick
-  ask turtles [
-    set wealth 0
+  ifelse wealth-reset? [
+    ask turtles [
+      set wealth 0
+    ]
+  ] [
+    ask turtles [
+      set wealth 0.5 * wealth ; shrink wealth proportionately
+    ]
   ]
+
 end
 
 to risk-mutation
@@ -227,10 +236,10 @@ to-report compute-payoffs [ row-move col-move ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-788
-10
-1225
-448
+443
+27
+880
+465
 -1
 -1
 13.0
@@ -254,25 +263,25 @@ ticks
 30.0
 
 SLIDER
-20
-196
-192
-229
+26
+295
+198
+328
 population
 population
 2
 1000
-567.0
+137.0
 5
 1
 NIL
 HORIZONTAL
 
 SLIDER
-33
-309
-205
-342
+1290
+91
+1462
+124
 win-win-payout
 win-win-payout
 0
@@ -284,10 +293,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-220
-367
-395
-400
+1468
+128
+1643
+161
 lose-lose-payout
 lose-lose-payout
 0
@@ -299,10 +308,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-32
-472
-244
-505
+1288
+255
+1500
+288
 cost-of-memory-linear
 cost-of-memory-linear
 -20
@@ -314,10 +323,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-33
-513
-274
-546
+1287
+294
+1528
+327
 cost-of-memory-quadratic
 cost-of-memory-quadratic
 -5
@@ -329,10 +338,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-34
-556
-214
-589
+1286
+332
+1466
+365
 cost-of-existence
 cost-of-existence
 -20
@@ -344,10 +353,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-224
-196
-396
-229
+1281
+435
+1453
+468
 turnover-rate
 turnover-rate
 0
@@ -359,10 +368,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-218
-310
-390
-343
+1468
+92
+1640
+125
 win-lose-payout
 win-lose-payout
 0
@@ -374,10 +383,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-27
-367
-199
-400
+1290
+128
+1462
+161
 lose-win-payout
 lose-win-payout
 0
@@ -389,10 +398,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-436
-109
-608
-142
+924
+89
+1096
+122
 error-finetune
 error-finetune
 0
@@ -404,10 +413,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-435
-149
-609
-182
+923
+129
+1097
+162
 error-magnitude
 error-magnitude
 1
@@ -419,10 +428,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-625
-112
-706
-157
+1136
+97
+1217
+142
 NIL
 error-prob
 4
@@ -430,10 +439,10 @@ error-prob
 11
 
 SLIDER
-436
-202
-616
-235
+922
+173
+1102
+206
 wildcard-finetune
 wildcard-finetune
 0
@@ -445,10 +454,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-436
-250
-633
-283
+923
+215
+1120
+248
 wildcard-magnitude
 wildcard-magnitude
 1
@@ -460,10 +469,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-436
-300
-608
-333
+922
+259
+1094
+292
 point-finetune
 point-finetune
 0
@@ -475,10 +484,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-433
-347
-608
-380
+922
+297
+1097
+330
 point-magnitude
 point-magnitude
 1
@@ -490,10 +499,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-431
-392
-603
-425
+920
+344
+1092
+377
 split-finetune
 split-finetune
 0
@@ -505,10 +514,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-435
-438
-607
-471
+920
+383
+1092
+416
 split-magnitude
 split-magnitude
 1
@@ -520,10 +529,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-437
-482
-625
-515
+920
+430
+1108
+463
 duplicate-finetune
 duplicate-finetune
 0
@@ -535,10 +544,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-437
-529
-642
-562
+920
+468
+1125
+501
 duplicate-magnitude
 duplicate-magnitude
 1
@@ -550,10 +559,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-656
-215
-758
-260
+1135
+181
+1237
+226
 NIL
 wildcard-prob
 17
@@ -561,10 +570,10 @@ wildcard-prob
 11
 
 MONITOR
-656
-305
-736
-350
+1137
+271
+1217
+316
 NIL
 point-prob
 17
@@ -572,10 +581,10 @@ point-prob
 11
 
 MONITOR
-665
-398
-740
-443
+1138
+357
+1213
+402
 NIL
 split-prob
 17
@@ -583,10 +592,10 @@ split-prob
 11
 
 MONITOR
-689
-488
-807
-533
+1141
+440
+1259
+485
 NIL
 duplication-prob
 17
@@ -662,40 +671,40 @@ NIL
 1
 
 TEXTBOX
-37
-264
-250
-294
+1296
+34
+1509
+64
 Prisoners' Dilemma parameters
 12
 0.0
 1
 
 TEXTBOX
-37
-426
-187
-456
+1292
+197
+1442
+227
 Agents' cost parameters
 12
 0.0
 1
 
 TEXTBOX
-449
-55
-599
-85
+937
+35
+1087
+65
 Randomness parameters
 12
 0.0
 1
 
 SLIDER
-162
-31
-381
-64
+26
+359
+245
+392
 interactions-per-round
 interactions-per-round
 1
@@ -739,6 +748,65 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+41
+203
+208
+236
+NIL
+inspect one-of turtles
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+TEXTBOX
+31
+405
+181
+490
+More interactions mean agents get a more representative sample of the population, but also slows the simulation.
+12
+0.0
+1
+
+TEXTBOX
+1293
+385
+1443
+419
+Genetic algorithm parameters
+12
+0.0
+1
+
+SWITCH
+1281
+478
+1469
+511
+deterministic-death?
+deterministic-death?
+0
+1
+-1000
+
+SWITCH
+1282
+524
+1425
+557
+wealth-reset?
+wealth-reset?
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -805,25 +873,32 @@ Randomness comes into play during interactions (e.g. an agent might try to coope
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+Try playing around with sliders affecting the cost of memory (but be aware that larger memories will slow down the model due to increased computational cost) to see what sort of sophisticated strategies you might discover.
+
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+Try making the probability of mutation a `turtles-own` variable to see how evolvability evolves in this environment.
 
-## NETLOGO FEATURES
+A particularly important extension would be giving agents some agency over who they interact with. You might add some signals (e.g. by having agents approach agents with probability weighted by such signals), or have agents do some sort of "research" into potential partners (e.g. by allowing agents to report some score on each interaction, then allowing them to poll other agents' histories. 
 
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+The `deterministic-death?` and `wealth-reset?` switches don't currently work as intended (and should be set to On and On, for now). See if you can figure out how to make them work so that the worst performers have some probability of survival and the best performers in one round can take some of their wealth into the next round.
 
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
 
-Lindgren
+This model is a reimplimentation and extension of one created by Kristian Lindgren. Any mistakes are my own.
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+Lindgren, K. "Evolution phenomena in simple dynamics." Artificial Life II: 295-312.
+
+```
+@article{lindgrenevolution,
+  title={Evolution phenomena in simple dynamics},
+  author={Lindgren, K},
+  journal={Artificial Life II},
+  pages={295--312}
+}
+```
 @#$#@#$#@
 default
 true
